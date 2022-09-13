@@ -10,4 +10,5 @@ public interface RoleService {
 
     void addDefaultRole();
     Set<Role> findByIdRoles(List<Long>roles);
+    Role addRole(String userRole);
 }

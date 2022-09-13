@@ -22,6 +22,10 @@ public class RoleServiceImpl implements RoleService{
         return roleDAO.findAll();
     }
 
+    @Override
+    public Role addRole(String userRole) {
+        return null;
+    }
 
     @Override
     @PostConstruct
