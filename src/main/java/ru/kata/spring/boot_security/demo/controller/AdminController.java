@@ -27,31 +27,36 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    private void getUserRoles(User user) {
-        user.setRoles(user.getRoles().stream()
-        .map(role -> roleService.addRole(role.getUserRole()))
-        .collect(Collectors.toSet()));
-    }
 
     @GetMapping("admin")
     public String pageForAdmin(@AuthenticationPrincipal User user, Model model) {
-        model.addAttribute("users", userService.findAll());
+        model.addAttribute("users", userService. getAllUsers());
         model.addAttribute("user", user);
-        model.addAttribute("roles", roleService.findAllRole());
+        model.addAttribute("roles", roleService.getAllRoles());
         return "admin";
     }
 
     @GetMapping("admin/new")
     public String pageCreator(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("user", user);
-        model.addAttribute("listRoles", roleService.findAllRole());
+        model.addAttribute("listRoles", roleService.getAllRoles());
         return "create";
     }
 
     @PostMapping("admin/new")
-    public String pageCreator(@ModelAttribute("user") User user){
-        getUserRoles(user);
-        userService.save(user);
+    public String pageCreator(@ModelAttribute("user")
+                              @Valid User user, BindingResult bindingResult,
+                              @RequestParam("listRoles") ArrayList<Long> roles){
+        if (bindingResult.hasErrors()) {
+            return "create";
+        }
+        if (userService.getUserByLogin(user.getUsername()) != null) {
+            bindingResult.addError(new FieldError("username", "username",
+                    String.format("User witn name \"%s\" is already exsist!", user.getUsername())));
+            return "create";
+        }
+        user.setRoles(roleService.findByIdRoles(roles));
+        userService.addUser(user);
         return "redirect:/admin";
     }
 
@@ -59,16 +64,20 @@ public class AdminController {
 
     @DeleteMapping("admin/delete/{id}")
     public String pageDelete(@PathVariable("id") long id) {
-        userService.deleteById(id);
+        userService.removeUser(id);
         return "redirect:/admin";
     }
 
 
+
     @PutMapping("admin/edit")
-    public String pageEdit(@ModelAttribute("user") User user, Model model) {
-        model.addAttribute("roles", roleService.findAllRole());
-        getUserRoles(user);
-        userService.update(user);
+    public String pageEdit(@Valid User user, BindingResult bindingResult,
+                           @RequestParam("listRoles") ArrayList<Long>roles) {
+        if (bindingResult.hasErrors()) {
+            return "edit";
+        }
+        user.setRoles(roleService.findByIdRoles(roles));
+        userService.updateUser(user);
         return "redirect:/admin";
     }
 }

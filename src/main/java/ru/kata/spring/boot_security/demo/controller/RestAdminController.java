@@ -28,7 +28,7 @@ public class RestAdminController {
 
     @GetMapping("/admin")
     public ResponseEntity<List<User>> getUsers() {
-        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     @PostMapping("/admin")
@@ -38,7 +38,7 @@ public class RestAdminController {
             return new ResponseEntity<>(new Exception(error), HttpStatus.BAD_REQUEST);
         }
         try {
-            userService.save(user);
+            userService.addUser(user);
             return new ResponseEntity<>(HttpStatus.OK);
         }catch (UsernameExistException u) {
             throw new UsernameExistException("User with username exist");
@@ -47,13 +47,13 @@ public class RestAdminController {
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<Exception> pageDelete(@PathVariable("id") long id) {
-        userService.deleteById(id);
+        userService.removeUser(id);
         return new ResponseEntity<>(new Exception("User deleted"), HttpStatus.OK);
     }
 
     @GetMapping("/admin/{id}")
     public ResponseEntity<User> getUser (@PathVariable("id") long id) {
-        User user = userService.getById(id);
+        User user = userService.getUserById(id);
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
@@ -68,14 +68,14 @@ public class RestAdminController {
             return new ResponseEntity<>(new Exception(error), HttpStatus.BAD_REQUEST);
         }
         try {
-            String oldPassword = userService.getById(id).getPassword();
+            String oldPassword = userService.getUserById(id).getPassword();
             if (oldPassword.equals(user.getPassword())) {
                 System.out.println("TRUE");
                 user.setPassword(oldPassword);
-                userService.update(user);
+                userService.updateUser(user);
             } else {
                 System.out.println("FALSE");
-                userService.save(user);
+                userService.addUser(user);
             }
             return new ResponseEntity<>(HttpStatus.OK);
         }catch (UsernameExistException u) {

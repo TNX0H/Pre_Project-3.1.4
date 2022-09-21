@@ -1,27 +1,37 @@
 package ru.kata.spring.boot_security.demo.configs;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 @Configuration
 @EnableWebSecurity
 @ComponentScan("ru.kata.spring.boot_security.demo.configs")
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements UserDetailsService{
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     private final SuccessUserHandler successUserHandler;
+    private final UserDetailsService userDetailsService;
+//    private final PasswordEncoder passwordEncoder;
 
-    UserServiceImpl userDAO;
-
-
-    public WebSecurityConfig(SuccessUserHandler successUserHandler) {
+    public WebSecurityConfig(SuccessUserHandler successUserHandler, @Lazy UserDetailsService userDetailsService) {
         this.successUserHandler = successUserHandler;
+        this.userDetailsService = userDetailsService;
+//        this.passwordEncoder = passwordEncoder;
+    }
+
+
+    @Bean
+    protected PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder(12);
     }
 
     @Override
@@ -39,13 +49,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements U
                 .logout()
                 .permitAll();
     }
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDAO.findByUsername(username);
-        if(user == null){
-            throw new UsernameNotFoundException("user not found");
-        }
-        return user;
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(daoAuthenticationProvider());
     }
+
+    @Bean
+    protected DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        return daoAuthenticationProvider;
+    }
+
+
 }

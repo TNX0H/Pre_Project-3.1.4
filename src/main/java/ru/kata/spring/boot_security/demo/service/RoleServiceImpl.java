@@ -3,7 +3,6 @@ package ru.kata.spring.boot_security.demo.service;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.dao.RoleDAO;
 import ru.kata.spring.boot_security.demo.model.Role;
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,27 +14,32 @@ public class RoleServiceImpl implements RoleService{
 
     public RoleServiceImpl(RoleDAO roleDAO) {
         this.roleDAO = roleDAO;
+        addDefaultRole();
     }
 
     @Override
-    public List<Role> findAllRole() {
-        return roleDAO.findAll();
+    public List<Role> getAllRoles() {
+        return roleDAO.getAllRoles();
     }
 
     @Override
-    public Role addRole(String userRole) {
-        return null;
-    }
+    public void addRole(Role role) {
+        roleDAO.addRole(role);
 
+    }
     @Override
-    @PostConstruct
     public void addDefaultRole() {
-        roleDAO.save(new Role("ROLE_USER"));
-        roleDAO.save(new Role("ROLE_ADMIN"));
+        addRole(new Role(1L, "ROLE_USER"));
+        addRole(new Role(2L, "ROLE_ADMIN"));
+    }
+
+    @Override
+    public Role findById(long id) {
+        return roleDAO.findById(id);
     }
 
     @Override
     public Set<Role> findByIdRoles(List<Long> roles) {
-        return new HashSet<>(roleDAO.findAllById(roles));
+        return new HashSet<>(roleDAO.findByIdRoles(roles));
     }
 }

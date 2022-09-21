@@ -23,7 +23,7 @@ public class RestUserController {
 
     @GetMapping("/user")
     public ResponseEntity<User> getUserByUsername (Principal principal) {
-        User user = userService.findByUsername(principal.getName());
+        User user = userService.getUserByLogin(principal.getName());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
