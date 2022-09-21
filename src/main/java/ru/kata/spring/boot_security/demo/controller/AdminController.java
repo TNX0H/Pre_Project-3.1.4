@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
@@ -10,10 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
-
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Component
 @RequestMapping()
@@ -40,7 +37,7 @@ public class AdminController {
     public String pageCreator(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("user", user);
         model.addAttribute("listRoles", roleService.getAllRoles());
-        return "create";
+        return "admin";
     }
 
     @PostMapping("admin/new")
@@ -48,12 +45,12 @@ public class AdminController {
                               @Valid User user, BindingResult bindingResult,
                               @RequestParam("listRoles") ArrayList<Long> roles){
         if (bindingResult.hasErrors()) {
-            return "create";
+            return "admin";
         }
         if (userService.getUserByLogin(user.getUsername()) != null) {
             bindingResult.addError(new FieldError("username", "username",
                     String.format("User witn name \"%s\" is already exsist!", user.getUsername())));
-            return "create";
+            return "admin";
         }
         user.setRoles(roleService.findByIdRoles(roles));
         userService.addUser(user);
@@ -74,7 +71,7 @@ public class AdminController {
     public String pageEdit(@Valid User user, BindingResult bindingResult,
                            @RequestParam("listRoles") ArrayList<Long>roles) {
         if (bindingResult.hasErrors()) {
-            return "edit";
+            return "admin";
         }
         user.setRoles(roleService.findByIdRoles(roles));
         userService.updateUser(user);

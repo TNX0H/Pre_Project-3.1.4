@@ -57,8 +57,6 @@ public class RestAdminController {
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
-
-
     @PutMapping("/admin/{id}")
     public ResponseEntity<Exception> pageEdit(@PathVariable("id") long id,
                                                   @Valid @RequestBody User user,
