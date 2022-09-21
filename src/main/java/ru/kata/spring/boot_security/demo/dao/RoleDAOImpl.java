@@ -38,4 +38,9 @@ public class RoleDAOImpl implements RoleDAO{
         q.setParameter("role",roles);
         return new HashSet<>(q.getResultList());
     }
+
+    @Override
+    public Set<Role> findRoleByName(String name) {
+        return null;
+    }
 }

@@ -9,5 +9,6 @@ public interface RoleDAO {
     void addRole(Role role);
     Role findById(long id);
     Set<Role> findByIdRoles(List<Long>roles);
+    Set<Role> findRoleByName(String name);
 
 }

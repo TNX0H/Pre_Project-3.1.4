@@ -33,6 +33,22 @@ public class UserServiceImpl implements UserService {
         addDefaultUser();
     }
 
+    @Override
+    public List<User> index() {
+        return userDAO.getAllUsers();
+    }
+
+    @Override
+    public User showUser(long id) {
+        return userDAO.getUserById(id);
+    }
+
+    @Override
+    @Transactional
+    public User showUserByUsername(String username){
+        return userDAO.getUserByLogin(username);
+    }
+
 
     @Override
     public List<User>  getAllUsers() {
@@ -72,7 +88,7 @@ public class UserServiceImpl implements UserService {
         Set<Role> roleSet2 = new HashSet<>();
         roleSet2.add(roleService.findById(1L));
         roleSet2.add(roleService.findById(2L));
-        User user1 = new User("Garry", "Potter", (byte) 27, "user1@mail.ru", "user1", "12345", roleSet);
+        User user1 = new User("Garry", "Potter", (byte) 27, "user1@mail.ru", "user", "1", roleSet);
         User user2 = new User("Steve", "Jobs", (byte) 52, "admin@mail.ru", "admin", "admin", roleSet2);
         addUser(user1);
         addUser(user2);

@@ -1,13 +1,14 @@
 package ru.kata.spring.boot_security.demo.model;
 
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.Collection;
 import java.util.Set;
 
+@Data
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -43,10 +44,10 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String password;
 
-    @ManyToMany
-    @JoinTable(name = "user_role",
-                joinColumns = @JoinColumn(name = "userId"),
-                inverseJoinColumns = @JoinColumn(name = "roleId"))
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_roles",
+                joinColumns = @JoinColumn(name = "user_id"),
+                inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
 
@@ -163,5 +164,12 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getRolesAsString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Role role : roles) {
+            stringBuilder.append(role + " ");
+        }
+        return stringBuilder.toString();
     }
 }

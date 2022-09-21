@@ -13,4 +13,6 @@ public interface RoleService {
     Role findById(long id);
     Set<Role> findByIdRoles(List<Long> roles);
     void addDefaultRole();
+
+    Set<Role> getByName(String name);
 }

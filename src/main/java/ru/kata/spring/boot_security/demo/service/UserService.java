@@ -2,13 +2,21 @@ package ru.kata.spring.boot_security.demo.service;
 
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    List<User> getAllUsers ();
+    List<User> index();
+
+    User showUser(long id);
+
+    @Transactional
+    User showUserByUsername(String username);
+
+    List<User> getAllUsers();
     User getUserById(long id);
     void addUser(User user);
     void removeUser(long id);
