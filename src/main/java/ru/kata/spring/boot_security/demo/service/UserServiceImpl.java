@@ -32,24 +32,6 @@ public class UserServiceImpl implements UserService {
         this.roleService = roleService;
         addDefaultUser();
     }
-
-    @Override
-    public List<User> index() {
-        return userDAO.getAllUsers();
-    }
-
-    @Override
-    public User showUser(long id) {
-        return userDAO.getUserById(id);
-    }
-
-    @Override
-    @Transactional
-    public User showUserByUsername(String username){
-        return userDAO.getUserByLogin(username);
-    }
-
-
     @Override
     public List<User>  getAllUsers() {
         return userDAO.getAllUsers();

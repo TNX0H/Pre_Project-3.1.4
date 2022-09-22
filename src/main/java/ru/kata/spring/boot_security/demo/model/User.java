@@ -1,55 +1,48 @@
 package ru.kata.spring.boot_security.demo.model;
 
-import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 
-@Data
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(name = "name")
-    @Pattern(regexp = "[A-Za-z]{2,15}", message = "Name should be between 2 and 15 latin characters")
+    @Pattern(regexp = "[A-Za-zа-яёА-ЯЁ]{2,15}", message = "Name should be between 2 and 15 characters without space")
     private String name;
 
-    @Column(name = "surname")
-    @Pattern(regexp = "[A-Za-z]{2,15}", message = "Surname should be between 2 and 15 latin characters")
+    @Pattern(regexp = "[A-Za-zа-яёА-ЯЁ]{2,15}", message = "Surname should be between 2 and 15 characters without space")
     private String surname;
 
-    @Column(name = "age")
-    @Min(value = 0, message = "Age should be >= 0")
-    @Max(value = 127, message = "Age should be < 128")
+    @Min(value = 0, message = "Age should be >= 0 & < 128")
+    @Max(value = 127, message = "Age should be >= 0 & < 128")
     private byte age;
 
-    @Column(name = "email")
     @Pattern(regexp = "([A-z0-9_.-]+)@([A-z0-9_.-]+).([A-z]{2,8})", message = "Enter correct email")
     private String email;
 
     @NotEmpty(message = "Username cannot be empty")
-    @Size(min = 2, max = 15, message = "Name should be between 2 and 15 latin characters")
+    @Pattern(regexp = "[A-Za-z]{2,15}", message = "Name should be between 2 and 15 latin characters without space")
+    @Size(min = 2, max = 15, message = "Username should be between 2 and 15 latin characters")
     @Column(unique = true)
     private String username;
 
     @NotEmpty(message = "Password cannot be empty")
     @Size(min = 4, message = "Password should be greater then 4 symbols")
-    @Column(unique = true)
     private String password;
 
+    @NotEmpty(message = "The role cannot be omitted")
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
-                joinColumns = @JoinColumn(name = "user_id"),
-                inverseJoinColumns = @JoinColumn(name = "role_id"))
+            joinColumns = @JoinColumn(name = "userId"),
+            inverseJoinColumns = @JoinColumn(name = "roleId"))
     private Set<Role> roles;
-
 
     public User() {
     }
@@ -64,15 +57,12 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", age=" + age +
-                ", email='" + email + '\'' +
-                '}';
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Long getUserId() {
@@ -125,7 +115,13 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
+        Set<Role> roles = getRoles();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getRole()));
+        }
+        return authorities;
     }
 
     @Override
@@ -156,20 +152,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public String getRolesAsString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Role role : roles) {
-            stringBuilder.append(role + " ");
-        }
-        return stringBuilder.toString();
     }
 }

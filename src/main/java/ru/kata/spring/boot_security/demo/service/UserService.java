@@ -9,13 +9,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    List<User> index();
-
-    User showUser(long id);
-
-    @Transactional
-    User showUserByUsername(String username);
-
     List<User> getAllUsers();
     User getUserById(long id);
     void addUser(User user);
